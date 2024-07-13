@@ -32,3 +32,38 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 enable_testing()
 
 add_subdirectory(tests)
+
+# Install library
+install(TARGETS mbcl
+    EXPORT mbclTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+# Install headers
+install(DIRECTORY src/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mbcl)
+
+# Generate and install version file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/mbclConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/mbclConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mbcl
+)
+
+# Export targets
+export(EXPORT mbclTargets
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/mbclTargets.cmake"
+    NAMESPACE MBCL::
+)
+
+# Install export file
+install(EXPORT mbclTargets
+    FILE mbclTargets.cmake
+    NAMESPACE MBCL::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mbcl
+)
