@@ -1,3 +1,6 @@
+#ifndef MBCL_H
+#define MBCL_H
+
 #include <assert.h>
 #include <aio.h>
 
@@ -17,3 +20,5 @@ typedef void (*MBCL_DATA_FIND_FUNCTION)(void *container, void *data);
         MBCL_DATA_FREE_FUNCTION freeData;       \
         MBCL_DATA_COMPARE_FUNCTION compareData; \
     }
+
+#endif

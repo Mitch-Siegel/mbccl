@@ -1,3 +1,6 @@
+#ifndef MBCL_RB_TREE_H
+#define MBCL_RB_TREE_H
+
 #include "rb_tree_node.h"
 #include "mbcl.h"
 
@@ -18,3 +21,5 @@ void *rb_tree_find(RBTree *tree, void *data);
 void rb_tree_remove(RBTree *tree, void *data);
 
 Iterator *rb_tree_begin(RBTree *tree);
+
+#endif

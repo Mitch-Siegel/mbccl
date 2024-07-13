@@ -1,3 +1,6 @@
+#ifndef MBCL_STACK_H
+#define MBCL_STACK_H
+
 #include "mbcl.h"
 #include "iterator.h"
 #include <stddef.h>
@@ -28,3 +31,5 @@ void *stack_find(Stack *stack, void *element);
 Iterator *stack_begin(Stack *stack);
 
 Iterator *stack_end(Stack *stack);
+
+#endif

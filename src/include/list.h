@@ -1,3 +1,6 @@
+#ifndef MBCL_LIST_H
+#define MBCL_LIST_H
+
 #include "list_node.h"
 #include "iterator.h"
 #include "mbcl.h"
@@ -29,3 +32,5 @@ void *list_find(List *list, void *element);
 Iterator *list_begin(List *list);
 
 Iterator *list_end(List *list);
+
+#endif

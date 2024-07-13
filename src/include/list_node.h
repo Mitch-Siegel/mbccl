@@ -1,3 +1,5 @@
+#ifndef MBCL_LIST_NODE_H
+#define MBCL_LIST_NODE_H
 
 typedef struct ListNode
 {
@@ -7,3 +9,5 @@ typedef struct ListNode
 } ListNode;
 
 ListNode *list_node_new(void *data);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef MBCL_SET_H
+#define MBCL_SET_H
+
 #include "rb_tree.h"
 
 typedef RBTree Set;
@@ -13,3 +16,5 @@ typedef RBTree Set;
 #define set_remove(set, data) rb_tree_remove((set))
 
 #define set_begin(set) rb_tree_begin((set))
+
+#endif
