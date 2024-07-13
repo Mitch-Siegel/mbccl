@@ -9,29 +9,17 @@ RBTreeNode *rb_tree_node_new(void *data)
     RBTreeNode *wipNode = malloc(sizeof(RBTreeNode));
     memset(wipNode, 0, sizeof(RBTreeNode));
     wipNode->data = data;
+    wipNode->left = NULL;
+    wipNode->right = NULL;
 
     return wipNode;
 }
 
-RBTreeNode *insert(RBTreeNode *root, void *data, MBCL_DATA_COMPARE_FUNCTION compareData)
+void rb_tree_node_free(RBTreeNode *node, MBCL_DATA_FREE_FUNCTION freeData)
 {
-    RBTreeNode *returned = NULL;
-    if (root == NULL)
+    if(freeData)
     {
-        returned = rb_tree_node_new(data);
+        freeData(node->data);
     }
-    else
-    {
-        if (compareData(data, root->data) > 0)
-        {
-            root->left = insert(root->left, data, compareData);
-        }
-        else
-        {
-            root->right = insert(root->right, data, compareData);
-        }
-        returned = root;
-    }
-
-    return returned;
+    free(node);
 }

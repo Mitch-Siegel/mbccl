@@ -5,6 +5,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+add_compile_options(-Werror -Wall -Wpedantic -Wextra)
+
+
 # Include directories
 include_directories(src/include)
 
@@ -18,7 +21,6 @@ add_library(mbcl
     src/rb_tree.c
 )
 
-add_compile_options(-Werror -Wall -Wpedantic -Wextra)
 
 set(CMAKE_CXX_CLANG_TIDY
   clang-tidy-17;
@@ -26,3 +28,7 @@ set(CMAKE_CXX_CLANG_TIDY
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+enable_testing()
+
+add_subdirectory(tests)
