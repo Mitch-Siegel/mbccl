@@ -14,6 +14,7 @@ include_directories(src/include)
 # Add the library
 add_library(mbcl
     src/iterator.c
+    src/array.c
     src/stack.c
     src/list_node.c
     src/list.c
