@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void rb_tree_rotate_left(RBTreeNode **root, RBTreeNode *pivot)
+static void rb_tree_rotate_left(RBTreeNode **root, RBTreeNode *pivot)
 {
     MBCL_ASSERT(pivot != NULL, "null pivot in rb_tree_rotate_left");
 
@@ -32,7 +32,7 @@ void rb_tree_rotate_left(RBTreeNode **root, RBTreeNode *pivot)
     pivot->parent = rightChild;
 }
 
-void rb_tree_rotate_right(RBTreeNode **root, RBTreeNode *pivot)
+static void rb_tree_rotate_right(RBTreeNode **root, RBTreeNode *pivot)
 {
     MBCL_ASSERT(pivot != NULL, "null pivot in rb_tree_rotate_right");
 
@@ -62,7 +62,7 @@ void rb_tree_rotate_right(RBTreeNode **root, RBTreeNode *pivot)
     pivot->parent = leftChild;
 }
 
-void rb_tree_insert_fixup(RBTree *tree, RBTreeNode *inserted)
+static void rb_tree_insert_fixup(RBTree *tree, RBTreeNode *inserted)
 {
     while ((inserted->parent != NULL) && (inserted->parent->color == C_RED))
     {
@@ -126,7 +126,7 @@ RBTree *rb_tree_new(MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION
     return wipTree;
 }
 
-void rb_tree_free_nodes(RBTreeNode *root, MBCL_DATA_FREE_FUNCTION freeData)
+static void rb_tree_free_nodes(RBTreeNode *root, MBCL_DATA_FREE_FUNCTION freeData)
 {
     if (root->left != NULL)
     {
@@ -143,7 +143,10 @@ void rb_tree_free_nodes(RBTreeNode *root, MBCL_DATA_FREE_FUNCTION freeData)
 
 void rb_tree_free(RBTree *tree)
 {
-    rb_tree_free_nodes(tree->root, tree->freeData);
+    if (tree->root != NULL)
+    {
+        rb_tree_free_nodes(tree->root, tree->freeData);
+    }
     free(tree);
 }
 
@@ -192,7 +195,7 @@ void rb_tree_insert(RBTree *tree, void *data)
     tree->size++;
 }
 
-void *rb_tree_find(RBTree *tree, void *data)
+static RBTreeNode *rb_tree_find_node(RBTree *tree, void *data)
 {
     RBTreeNode *currentNode = tree->root;
     while (currentNode != NULL)
@@ -200,7 +203,7 @@ void *rb_tree_find(RBTree *tree, void *data)
         ssize_t cmpVal = tree->compareData(currentNode->data, data);
         if (cmpVal == 0)
         {
-            return currentNode->data;
+            return currentNode;
         }
         else if (cmpVal > 0)
         {
@@ -215,8 +218,143 @@ void *rb_tree_find(RBTree *tree, void *data)
     return NULL;
 }
 
-#include <stdio.h>
-void rb_tree_inorder_traverse_to_iterator(RBTreeNode *node, Iterator *treeIterator, size_t *elementIndex)
+void *rb_tree_find(RBTree *tree, void *data)
+{
+    RBTreeNode *foundNode = rb_tree_find_node(tree, data);
+
+    void *retData = NULL;
+    if (foundNode != NULL)
+    {
+        retData = foundNode->data;
+    }
+    return retData;
+}
+
+static void rb_tree_remove_fixup(RBTreeNode **root, RBTreeNode *currentNode)
+{
+    RBTreeNode *sibling;
+    while ((currentNode != NULL) && (currentNode != *root) && (currentNode->color == C_BLACK))
+    {
+        if (currentNode == currentNode->parent->left)
+        {
+            sibling = currentNode->parent->right;
+            if (sibling->color == C_RED)
+            {
+                sibling->color = C_BLACK;
+                currentNode->parent->color = C_RED;
+                rb_tree_rotate_left(root, currentNode->parent);
+                sibling = currentNode->parent->right;
+            }
+            if ((sibling->left->color == C_BLACK) && (sibling->right->color == C_BLACK))
+            {
+                sibling->color = C_RED;
+                currentNode = currentNode->parent;
+            }
+            else
+            {
+                if (sibling->right->color == C_BLACK)
+                {
+                    sibling->left->color = C_BLACK;
+                    sibling->color = C_RED;
+                    rb_tree_rotate_right(root, sibling);
+                    sibling = currentNode->parent->right;
+                }
+                sibling->color = currentNode->parent->color;
+                currentNode->parent->color = C_BLACK;
+                sibling->right->color = C_BLACK;
+                rb_tree_rotate_left(root, currentNode->parent);
+                currentNode = *root;
+            }
+        }
+        else
+        {
+            sibling = currentNode->parent->left;
+            if (sibling->color == C_RED)
+            {
+                sibling->color = C_BLACK;
+                currentNode->parent->color = C_RED;
+                rb_tree_rotate_right(root, currentNode->parent);
+                sibling = currentNode->parent->left;
+            }
+            if (sibling->right->color == C_BLACK && sibling->left->color == C_BLACK)
+            {
+                sibling->color = C_RED;
+                currentNode = currentNode->parent;
+            }
+            else
+            {
+                if (sibling->left->color == C_BLACK)
+                {
+                    sibling->right->color = C_BLACK;
+                    sibling->color = C_RED;
+                    rb_tree_rotate_left(root, sibling);
+                    sibling = currentNode->parent->left;
+                }
+                sibling->color = currentNode->parent->color;
+                currentNode->parent->color = C_BLACK;
+                sibling->left->color = C_BLACK;
+                rb_tree_rotate_right(root, currentNode->parent);
+                currentNode = *root;
+            }
+        }
+    }
+
+    if (currentNode != NULL)
+    {
+        currentNode->color = C_BLACK;
+    }
+}
+
+// Function to delete a node from the red-black tree
+void rb_tree_remove(RBTree *tree, void *data)
+{
+    RBTreeNode *toRemove = rb_tree_find_node(tree, data);
+
+    MBCL_ASSERT(toRemove != NULL, "rb_tree_remove to remove data not in tree");
+
+    RBTreeNode *replacement;
+    RBTreeNode *current = toRemove;
+    RB_TREE_NODE_COLOR originalColor = current->color;
+    if (toRemove->left == NULL)
+    {
+        replacement = toRemove->right;
+        rb_tree_node_transplant(&tree->root, toRemove, toRemove->right);
+    }
+    else if (toRemove->right == NULL)
+    {
+        replacement = toRemove->left;
+        rb_tree_node_transplant(&tree->root, toRemove, toRemove->left);
+    }
+    else
+    {
+        current = rb_tree_node_min(toRemove->right);
+        originalColor = current->color;
+        replacement = current->right;
+        if (current->parent == toRemove)
+            replacement->parent = current;
+        else
+        {
+            rb_tree_node_transplant(&tree->root, current, current->right);
+            current->right = toRemove->right;
+            current->right->parent = current;
+        }
+        rb_tree_node_transplant(&tree->root, toRemove, current);
+        current->left = toRemove->left;
+        current->left->parent = current;
+        current->color = toRemove->color;
+    }
+
+    if (originalColor == C_BLACK)
+    {
+        rb_tree_remove_fixup(&tree->root, replacement);
+    }
+
+    rb_tree_node_free(toRemove, tree->freeData);
+
+    tree->size--;
+}
+
+static void rb_tree_inorder_traverse_to_iterator(RBTreeNode *node, Iterator *treeIterator, size_t *elementIndex)
 {
     if (node->left != NULL)
     {
@@ -236,34 +374,37 @@ Iterator *rb_tree_begin(RBTree *tree)
 {
     Iterator *treeIterator = iterator_new(tree->size);
     size_t elementIndex = 0;
-    rb_tree_inorder_traverse_to_iterator(tree->root, treeIterator, &elementIndex);
+    if (tree->size > 0)
+    {
+        rb_tree_inorder_traverse_to_iterator(tree->root, treeIterator, &elementIndex);
+    }
 
     return treeIterator;
 }
 
-void rb_tree_print_rec(RBTreeNode *node, size_t iteration)
-{
-    printf("%zu[label=%d]\n", (size_t)node + iteration, *(int *)node->data);
-    if (node->left != NULL)
-    {
-        printf("%zu->%zu\n", (size_t)node + iteration, (size_t)node->left + iteration);
-        rb_tree_print_rec(node->left, iteration);
-    }
+// void rb_tree_print_rec(RBTreeNode *node, size_t iteration)
+// {
+//     printf("%zu[label=%d]\n", (size_t)node + iteration, *(int *)node->data);
+//     if (node->left != NULL)
+//     {
+//         printf("%zu->%zu\n", (size_t)node + iteration, (size_t)node->left + iteration);
+//         rb_tree_print_rec(node->left, iteration);
+//     }
 
-    if (node->right != NULL)
-    {
-        printf("%zu->%zu\n", (size_t)node + iteration, (size_t)node->right + iteration);
-        rb_tree_print_rec(node->right, iteration);
-    }
-}
+//     if (node->right != NULL)
+//     {
+//         printf("%zu->%zu\n", (size_t)node + iteration, (size_t)node->right + iteration);
+//         rb_tree_print_rec(node->right, iteration);
+//     }
+// }
 
-void rb_tree_print(RBTree *tree)
-{
-    static size_t iteration = 0;
+// void rb_tree_print(RBTree *tree)
+// {
+//     static size_t iteration = 0;
 
-    printf("subgraph %zu {\n", iteration);
-    rb_tree_print_rec(tree->root, iteration);
-    printf("}\n");
+//     printf("subgraph %zu {\n", iteration);
+//     rb_tree_print_rec(tree->root, iteration);
+//     printf("}\n");
 
-    iteration++;
-}
+//     iteration++;
+// }

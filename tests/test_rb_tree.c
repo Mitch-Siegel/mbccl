@@ -24,6 +24,21 @@ void insert_int(RBTree *tree, int toInsert)
     rb_tree_insert(tree, stored);
 }
 
+void remove_int(RBTree *tree, int toRemove)
+{
+    rb_tree_remove(tree, &toRemove);
+}
+
+int try_find_int(RBTree *tree, int toFind)
+{
+    int *found = rb_tree_find(tree, &toFind);
+    if (found == NULL)
+    {
+        return -1;
+    }
+    return *found;
+}
+
 size_t depth_traverse(RBTreeNode *node, size_t depth)
 {
     size_t newDepth = depth;
@@ -45,7 +60,7 @@ size_t get_height(RBTree *tree)
     return depth_traverse(tree->root, 1);
 }
 
-int check_ordering(RBTree *tree)
+int tree_check_ordering(RBTree *tree)
 {
     // Validation
     int last = -1;
@@ -53,7 +68,10 @@ int check_ordering(RBTree *tree)
     while (iterator_valid(treeIterator))
     {
         int current = *(int *)iterator_get(treeIterator);
-        MBCL_TEST_CHECK_OR_FAIL(current > last);
+        if (current <= last)
+        {
+            return 1;
+        }
         printf("%d ", current);
         iterator_next(treeIterator);
         last = current;
@@ -65,6 +83,14 @@ int check_ordering(RBTree *tree)
     return 0;
 }
 
+#define check_ordering(tree) MBCL_TEST_CHECK_OR_FAIL(!tree_check_ordering(tree), "Bad ordering in tree")
+
+#define expect_tree_height(tree, height)                                                              \
+    {                                                                                                 \
+        size_t treeHeight = get_height(testTree);                                                     \
+        MBCL_TEST_CHECK_OR_FAIL(treeHeight == (height), "Unexpected tree height of %zu", treeHeight); \
+    }
+
 int test_ascending_insertion()
 {
     RBTree *testTree = create_int_tree();
@@ -73,9 +99,10 @@ int test_ascending_insertion()
         insert_int(testTree, i);
     }
 
-    MBCL_TEST_CHECK_OR_FAIL(!check_ordering(testTree));
+    check_ordering(testTree);
 
-    MBCL_TEST_CHECK_OR_FAIL(get_height(testTree) == 5);
+    size_t treeHeight = get_height(testTree);
+    MBCL_TEST_CHECK_OR_FAIL(treeHeight == 5, "Unexpected tree height of %zu", treeHeight);
 
     rb_tree_free(testTree);
 
@@ -90,9 +117,8 @@ int test_descending_insertion()
         insert_int(testTree, i);
     }
 
-    MBCL_TEST_CHECK_OR_FAIL(!check_ordering(testTree));
-
-    MBCL_ASSERT(get_height(testTree) == 5, "inserting numbers 0-10 tree depth");
+    check_ordering(testTree);
+    expect_tree_height(testTree, 5);
 
     rb_tree_free(testTree);
 
@@ -114,9 +140,150 @@ int test_tree_depth()
     insert_int(testTree, 80);
     insert_int(testTree, 90);
 
-    MBCL_TEST_CHECK_OR_FAIL(!check_ordering(testTree));
+    check_ordering(testTree);
+    expect_tree_height(testTree, 4);
 
-    MBCL_TEST_CHECK_OR_FAIL(get_height(testTree) == 4);
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_find()
+{
+    RBTree *testTree = create_int_tree();
+    for (int i = 0; i < 10; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    check_ordering(testTree);
+
+    for (int i = 0; i < 10; i++)
+    {
+        MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, i) == i, "Couldn't find %d", i);
+    }
+
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_not_find()
+{
+    RBTree *testTree = create_int_tree();
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 5) == -1, "Found unexpected element");
+    return 0;
+}
+
+int test_tree_remove_single()
+{
+    RBTree *testTree = create_int_tree();
+
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 123) == -1, "Found unexpected element");
+    insert_int(testTree, 123);
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 123) == 123, "Couldn't find expected element");
+    remove_int(testTree, 123);
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 123) == -1, "Found unexpected element");
+    insert_int(testTree, 123);
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 123) == 123, "Couldn't find expected element");
+
+    return 0;
+}
+
+int test_tree_remove()
+{
+    RBTree *testTree = create_int_tree();
+
+    for (int i = 0; i < 10; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 4) == 4, "Couldn't find expected element");
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 8) == 8, "Couldn't find expected element");
+    remove_int(testTree, 4);
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 4) == -1, "Found unexpected element");
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 8) == 8, "Couldn't find expected element");
+    remove_int(testTree, 8);
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 4) == -1, "Found unexpected element");
+    MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 8) == -1, "Found unexpected element");
+
+    check_ordering(testTree);
+
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_remove_ascending()
+{
+    RBTree *testTree = create_int_tree();
+
+    for (int i = 0; i < 10; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        remove_int(testTree, i);
+        MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, i) == -1, "Found unexpected element");
+        check_ordering(testTree);
+    }
+
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_remove_descending()
+{
+    RBTree *testTree = create_int_tree();
+
+    for (int i = 0; i < 10; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    for (int i = 9; i >= 0; i--)
+    {
+        remove_int(testTree, i);
+        MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, i) == -1, "Found unexpected element");
+        check_ordering(testTree);
+    }
+
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_insert_million()
+{
+    RBTree *testTree = create_int_tree();
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    rb_tree_free(testTree);
+
+    return 0;
+}
+
+int test_tree_remove_million()
+{
+    RBTree *testTree = create_int_tree();
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        insert_int(testTree, i);
+    }
+
+    for (int i = 0; i < 1000000; i++)
+    {
+        remove_int(testTree, i);
+    }
 
     rb_tree_free(testTree);
 
@@ -139,6 +306,38 @@ int main(int argc, char *argv[])
 
     case 2:
         return test_tree_depth();
+        break;
+
+    case 3:
+        return test_tree_find();
+        break;
+
+    case 4:
+        return test_tree_not_find();
+        break;
+
+    case 5:
+        return test_tree_remove_single();
+        break;
+
+    case 6:
+        return test_tree_remove();
+        break;
+
+    case 7:
+        test_tree_remove_ascending();
+        break;
+
+    case 8:
+        test_tree_remove_descending();
+        break;
+
+    case 9:
+        test_tree_insert_million();
+        break;
+
+    case 10:
+        test_tree_remove_million();
         break;
 
     default:

@@ -15,6 +15,6 @@ void rb_tree_insert(RBTree *tree, void *data);
 
 void *rb_tree_find(RBTree *tree, void *data);
 
-Iterator *rb_tree_begin(RBTree *tree);
+void rb_tree_remove(RBTree *tree, void *data);
 
-void rb_tree_print(RBTree *tree);
+Iterator *rb_tree_begin(RBTree *tree);
