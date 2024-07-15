@@ -9,7 +9,6 @@ typedef struct
     void **data;
 } Array;
 
-
 void array_init(Array *array, MBCL_DATA_FREE_FUNCTION freeData, size_t size);
 
 void array_deinit(Array *array);

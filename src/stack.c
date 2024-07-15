@@ -35,7 +35,7 @@ void *stack_pop(Stack *stack)
     stack->size -= 1;
     poppedData = array_at(&stack->container, stack->size);
 
-    if(stack->size <= (stack->container.size * MBCL_STACK_SCALE_DOWN_THRESHOLD))
+    if (stack->size <= (stack->container.size * MBCL_STACK_SCALE_DOWN_THRESHOLD))
     {
         array_resize(&stack->container, stack->size);
     }

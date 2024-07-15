@@ -172,6 +172,8 @@ int test_tree_not_find()
 {
     RBTree *testTree = create_int_tree();
     MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 5) == -1, "Found unexpected element");
+
+    rb_tree_free(testTree);
     return 0;
 }
 
@@ -187,6 +189,7 @@ int test_tree_remove_single()
     insert_int(testTree, 123);
     MBCL_TEST_CHECK_OR_FAIL(try_find_int(testTree, 123) == 123, "Couldn't find expected element");
 
+    rb_tree_free(testTree);
     return 0;
 }
 

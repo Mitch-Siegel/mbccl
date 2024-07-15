@@ -26,8 +26,6 @@ void *stack_pop(Stack *stack);
 
 void *stack_peek(Stack *stack);
 
-void *stack_find(Stack *stack, void *element);
-
 Iterator *stack_bottom(Stack *stack);
 
 Iterator *stack_top(Stack *stack);

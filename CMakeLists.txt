@@ -6,7 +6,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_compile_options(-Werror -Wall -Wpedantic -Wextra)
-add_compile_options(-g)
 
 # Include directories
 include_directories(src/include)
@@ -20,6 +19,7 @@ add_library(mbcl
     src/list.c
     src/rb_tree_node.c
     src/rb_tree.c
+    src/deque.c
 )
 
 
