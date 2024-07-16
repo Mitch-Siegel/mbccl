@@ -20,7 +20,7 @@ size_t hash_int(void *data)
     return hash;
 }
 
-ssize_t dummy_compare(void *a, void *b)
+ssize_t compare_int(void *a, void *b)
 {
     return *(int *)a - *(int *)b;
 }
@@ -28,7 +28,7 @@ ssize_t dummy_compare(void *a, void *b)
 // Unit test function for hash_table_insert and hash_table_find
 int test_hash_table_insert_and_find()
 {
-    HashTable *table = hash_table_new(free, dummy_compare, hash_int, 10);
+    HashTable *table = hash_table_new(free, compare_int, hash_int, 10);
     hash_table_insert(table, int_new(1));
 
     int key = 1;
@@ -43,7 +43,7 @@ int test_hash_table_insert_and_find()
 // Unit test function for hash_table_remove
 int test_hash_table_remove()
 {
-    HashTable *table = hash_table_new(free, dummy_compare, hash_int, 10);
+    HashTable *table = hash_table_new(free, compare_int, hash_int, 10);
     hash_table_insert(table, int_new(1));
 
     int key = 1;
@@ -54,6 +54,35 @@ int test_hash_table_remove()
     hash_table_remove(table, &key);
     found = (int *)hash_table_find(table, &key);
     MBCL_TEST_CHECK_OR_FAIL(found == NULL, "found unexpected value in hash table");
+
+    hash_table_free(table);
+
+    return 0;
+}
+
+int test_hash_table_iterator()
+{
+    HashTable *table = hash_table_new(free, compare_int, hash_int, 10);
+    for (int i = 5; i < 1000; i += 5)
+    {
+        hash_table_insert(table, int_new(i));
+    }
+
+    Iterator *tableIterator = hash_table_begin(table);
+    size_t nElements = 0;
+    int last = 0;
+    while (iterator_valid(tableIterator))
+    {
+        int *gotten = iterator_get(tableIterator);
+        printf("%d\n", *gotten);
+        MBCL_TEST_CHECK_OR_FAIL((last + 5) == (*gotten), "Unexpected value gotten from hash table iterator");
+        nElements++;
+        last = *gotten;
+
+        iterator_next(tableIterator);
+    }
+
+    MBCL_TEST_CHECK_OR_FAIL(nElements == table->size, "Number of elements gotten from iterator does not match hash table size");
 
     hash_table_free(table);
 
@@ -72,6 +101,10 @@ int main(int argc, char *argv[])
 
     case 1:
         test_hash_table_remove();
+        break;
+
+    case 2:
+        test_hash_table_iterator();
         break;
 
     default:
