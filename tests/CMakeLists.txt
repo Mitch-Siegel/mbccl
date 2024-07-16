@@ -25,3 +25,10 @@ target_link_libraries(test-deque mbcl)
 add_test(NAME test_deque_forward_queue COMMAND test-deque 0)
 add_test(NAME test_deque_backward_queue COMMAND test-deque 1)
 add_test(NAME test_deque_interleaved COMMAND test-deque 2)
+
+# hash table tests
+add_executable(test-hash-table test_hash_table.c)
+target_link_libraries(test-hash-table mbcl)
+
+add_test(NAME test_hash_table_insert_find COMMAND test-hash-table 0)
+add_test(NAME test_hash_table_remove COMMAND test-hash-table 1)

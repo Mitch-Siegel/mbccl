@@ -114,14 +114,19 @@ static void rb_tree_insert_fixup(RBTree *tree, RBTreeNode *inserted)
     tree->root->color = C_BLACK;
 }
 
+void rb_tree_init(RBTree *tree, MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION compareData)
+{
+    tree->root = NULL;
+    tree->freeData = freeData;
+    tree->compareData = compareData;
+}
+
 RBTree *rb_tree_new(MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION compareData)
 {
     RBTree *wipTree = malloc(sizeof(RBTree));
     memset(wipTree, 0, sizeof(RBTree));
 
-    wipTree->root = NULL;
-    wipTree->freeData = freeData;
-    wipTree->compareData = compareData;
+    rb_tree_init(wipTree, freeData, compareData);
 
     return wipTree;
 }
@@ -141,12 +146,17 @@ static void rb_tree_free_nodes(RBTreeNode *root, MBCL_DATA_FREE_FUNCTION freeDat
     rb_tree_node_free(root, freeData);
 }
 
-void rb_tree_free(RBTree *tree)
+void rb_tree_deinit(RBTree *tree)
 {
     if (tree->root != NULL)
     {
         rb_tree_free_nodes(tree->root, tree->freeData);
     }
+}
+
+void rb_tree_free(RBTree *tree)
+{
+    rb_tree_deinit(tree);
     free(tree);
 }
 

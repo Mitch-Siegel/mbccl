@@ -10,7 +10,11 @@ typedef struct
     struct RBTreeNode *root;
 } RBTree;
 
+void rb_tree_init(RBTree *tree, MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION compareData);
+
 RBTree *rb_tree_new(MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION compareData);
+
+void rb_tree_deinit(RBTree *tree);
 
 void rb_tree_free(RBTree *tree);
 

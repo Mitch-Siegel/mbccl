@@ -20,6 +20,7 @@ add_library(mbcl
     src/rb_tree_node.c
     src/rb_tree.c
     src/deque.c
+    src/hash_table.c
 )
 
 
