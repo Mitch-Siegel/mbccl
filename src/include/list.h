@@ -14,8 +14,14 @@ typedef struct
     MBCL_DATA_COMPARE_FUNCTION compareData;
 } List;
 
+void list_init(List *list,
+               MBCL_DATA_FREE_FUNCTION freeData,
+               MBCL_DATA_COMPARE_FUNCTION compareData);
+
 List *list_new(MBCL_DATA_FREE_FUNCTION freeData,
                MBCL_DATA_COMPARE_FUNCTION compareData);
+
+void list_deinit(List *list);
 
 void list_free(List *list);
 
@@ -23,9 +29,15 @@ void list_append(List *list, void *data);
 
 void list_prepend(List *list, void *data);
 
+void *list_front(List *list);
+
 void *list_pop_front(List *list);
 
+void *list_back(List *list);
+
 void *list_pop_back(List *list);
+
+void list_sort(List *list);
 
 void *list_find(List *list, void *element);
 

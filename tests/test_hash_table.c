@@ -91,7 +91,7 @@ int test_hash_table_iterator()
 
 int main(int argc, char *argv[])
 {
-    MBCL_ASSERT(argc == 2, "Provide number of deque test to run");
+    MBCL_ASSERT(argc == 2, "Provide number of hash table test to run");
     int whichTest = atoi(argv[1]);
     switch (whichTest)
     {

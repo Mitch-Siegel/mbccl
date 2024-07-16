@@ -1,6 +1,11 @@
 
 include_directories(include)
 
+# list tests
+add_executable(test-list test_list.c)
+target_link_libraries(test-list mbcl)
+
+add_test(NAME test_list_sort COMMAND test-list 1)
 # rb tree tests
 add_executable(test-rb-tree test_rb_tree.c)
 target_link_libraries(test-rb-tree mbcl)
