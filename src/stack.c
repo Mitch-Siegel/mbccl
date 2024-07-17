@@ -35,7 +35,7 @@ void *stack_pop(Stack *stack)
     stack->size -= 1;
     poppedData = array_at(&stack->container, stack->size);
 
-    if (stack->size <= (stack->container.size * MBCL_STACK_SCALE_DOWN_THRESHOLD))
+    if ((stack->size > MBCL_STACK_DEFAULT_ALLOCATION) && (stack->size <= (stack->container.size * MBCL_STACK_SCALE_DOWN_THRESHOLD)))
     {
         array_resize(&stack->container, stack->size);
     }
@@ -54,14 +54,14 @@ void *stack_peek(Stack *stack)
 Iterator *stack_bottom(Stack *stack)
 {
     Iterator *stackIterator = iterator_new(stack->size);
-    memcpy(&stackIterator->data, &stack->container.data, stack->size * sizeof(void *));
+    memcpy(stackIterator->data, stack->container.data, stack->size * sizeof(void *));
     return stackIterator;
 }
 
 Iterator *stack_top(Stack *stack)
 {
     Iterator *stackIterator = iterator_new(stack->size);
-    memcpy(&stackIterator->data, &stack->container.data, stack->size * sizeof(void *));
+    memcpy(stackIterator->data, stack->container.data, stack->size * sizeof(void *));
     stackIterator->pos = stack->size - 1;
     return stackIterator;
 }

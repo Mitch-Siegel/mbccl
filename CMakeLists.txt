@@ -20,6 +20,7 @@ add_library(mbcl SHARED
     src/list.c
     src/rb_tree_node.c
     src/rb_tree.c
+    src/set.c
     src/deque.c
     src/hash_table.c
 )

@@ -1,5 +1,5 @@
-#ifndef MBCL_RB_TREE_H
-#define MBCL_RB_TREE_H
+#ifndef MBCL_ARRAY_H
+#define MBCL_ARRAY_H
 
 #include "mbcl.h"
 

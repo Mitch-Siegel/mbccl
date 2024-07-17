@@ -65,3 +65,10 @@ void *deque_pop_back(Deque *deque)
     void *poppedData = deque->data[deque->startIdx + deque->size];
     return poppedData;
 }
+
+Iterator *deque_front(Deque *deque)
+{
+    Iterator *wipIterator = iterator_new(deque->size);
+    memcpy(wipIterator->data, deque->data + deque->startIdx, deque->size * sizeof(void *));
+    return wipIterator;
+}

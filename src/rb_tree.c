@@ -6,6 +6,12 @@ static void rb_tree_rotate_left(RBTreeNode **root, RBTreeNode *pivot)
 {
     MBCL_ASSERT(pivot != NULL, "null pivot in rb_tree_rotate_left");
 
+    if (pivot->right == NULL)
+    {
+        // nothing to do
+        return;
+    }
+
     RBTreeNode *rightChild = pivot->right;
     pivot->right = rightChild->left;
 
@@ -35,6 +41,12 @@ static void rb_tree_rotate_left(RBTreeNode **root, RBTreeNode *pivot)
 static void rb_tree_rotate_right(RBTreeNode **root, RBTreeNode *pivot)
 {
     MBCL_ASSERT(pivot != NULL, "null pivot in rb_tree_rotate_right");
+
+    if (pivot->left == NULL)
+    {
+        // nothing to do
+        return;
+    }
 
     RBTreeNode *leftChild = pivot->left;
     pivot->left = leftChild->right;
@@ -204,23 +216,28 @@ void rb_tree_insert(RBTree *tree, void *data)
 
     tree->size++;
 }
-
+#include <stdio.h>
 static RBTreeNode *rb_tree_find_node(RBTree *tree, void *data)
 {
+    // printf("find node with data %p\n", data);
     RBTreeNode *currentNode = tree->root;
     while (currentNode != NULL)
     {
         ssize_t cmpVal = tree->compareData(currentNode->data, data);
+        // printf("current has data %p - compared to %zd\n", currentNode->data, cmpVal);
         if (cmpVal == 0)
         {
+            // printf("return that\n");
             return currentNode;
         }
         else if (cmpVal > 0)
         {
+            // printf("go left\n");
             currentNode = currentNode->left;
         }
         else
         {
+            // printf("go right\n");
             currentNode = currentNode->right;
         }
     }
@@ -243,66 +260,100 @@ void *rb_tree_find(RBTree *tree, void *data)
 static void rb_tree_remove_fixup(RBTreeNode **root, RBTreeNode *currentNode)
 {
     RBTreeNode *sibling;
-    while ((currentNode != NULL) && (currentNode != *root) && (currentNode->color == C_BLACK))
+    while ((currentNode != NULL) &&
+           (currentNode != *root) &&
+           (currentNode->color == C_BLACK))
     {
-        if (currentNode == currentNode->parent->left)
+        if ((currentNode->parent != NULL) && (currentNode == currentNode->parent->left))
         {
             sibling = currentNode->parent->right;
-            if (sibling->color == C_RED)
+            if ((sibling != NULL) && (sibling->color == C_RED))
             {
                 sibling->color = C_BLACK;
                 currentNode->parent->color = C_RED;
                 rb_tree_rotate_left(root, currentNode->parent);
                 sibling = currentNode->parent->right;
             }
-            if ((sibling->left->color == C_BLACK) && (sibling->right->color == C_BLACK))
+            if ((sibling != NULL) &&
+                (((sibling->left == NULL) || (sibling->left->color == C_BLACK)) &&
+                 ((sibling->right == NULL) || (sibling->right->color == C_BLACK))))
             {
                 sibling->color = C_RED;
                 currentNode = currentNode->parent;
             }
             else
             {
-                if (sibling->right->color == C_BLACK)
+                if ((sibling != NULL) &&
+                    (sibling->right != NULL) &&
+                    (sibling->right->color == C_BLACK))
                 {
-                    sibling->left->color = C_BLACK;
+                    if (sibling->left != NULL)
+                    {
+                        sibling->left->color = C_BLACK;
+                    }
                     sibling->color = C_RED;
                     rb_tree_rotate_right(root, sibling);
                     sibling = currentNode->parent->right;
                 }
-                sibling->color = currentNode->parent->color;
-                currentNode->parent->color = C_BLACK;
-                sibling->right->color = C_BLACK;
+                if (sibling != NULL)
+                {
+                    sibling->color = currentNode->parent->color;
+                }
+                if (currentNode->parent != NULL)
+                {
+                    currentNode->parent->color = C_BLACK;
+                }
+                if (sibling != NULL && sibling->right != NULL)
+                {
+                    sibling->right->color = C_BLACK;
+                }
                 rb_tree_rotate_left(root, currentNode->parent);
                 currentNode = *root;
             }
         }
-        else
+        else if (currentNode->parent != NULL)
         {
             sibling = currentNode->parent->left;
-            if (sibling->color == C_RED)
+            if ((sibling != NULL) && (sibling->color == C_RED))
             {
                 sibling->color = C_BLACK;
                 currentNode->parent->color = C_RED;
                 rb_tree_rotate_right(root, currentNode->parent);
                 sibling = currentNode->parent->left;
             }
-            if (sibling->right->color == C_BLACK && sibling->left->color == C_BLACK)
+            if (sibling != NULL &&
+                (((sibling->right == NULL) || (sibling->right->color == C_BLACK)) &&
+                 ((sibling->left == NULL) || (sibling->left->color == C_BLACK))))
             {
                 sibling->color = C_RED;
                 currentNode = currentNode->parent;
             }
             else
             {
-                if (sibling->left->color == C_BLACK)
+                if ((sibling != NULL) &&
+                    (sibling->left != NULL) &&
+                    (sibling->left->color == C_BLACK))
                 {
-                    sibling->right->color = C_BLACK;
+                    if (sibling->right != NULL)
+                    {
+                        sibling->right->color = C_BLACK;
+                    }
                     sibling->color = C_RED;
                     rb_tree_rotate_left(root, sibling);
                     sibling = currentNode->parent->left;
                 }
-                sibling->color = currentNode->parent->color;
-                currentNode->parent->color = C_BLACK;
-                sibling->left->color = C_BLACK;
+                if (sibling != NULL)
+                {
+                    sibling->color = currentNode->parent->color;
+                }
+                if (currentNode->parent != NULL)
+                {
+                    currentNode->parent->color = C_BLACK;
+                }
+                if ((sibling != NULL) && (sibling->left != NULL))
+                {
+                    sibling->left->color = C_BLACK;
+                }
                 rb_tree_rotate_right(root, currentNode->parent);
                 currentNode = *root;
             }
@@ -322,9 +373,10 @@ void rb_tree_remove(RBTree *tree, void *data)
 
     MBCL_ASSERT(toRemove != NULL, "rb_tree_remove to remove data not in tree");
 
-    RBTreeNode *replacement;
+    RBTreeNode *replacement = NULL;
     RBTreeNode *current = toRemove;
     RB_TREE_NODE_COLOR originalColor = current->color;
+
     if (toRemove->left == NULL)
     {
         replacement = toRemove->right;
@@ -341,16 +393,27 @@ void rb_tree_remove(RBTree *tree, void *data)
         originalColor = current->color;
         replacement = current->right;
         if (current->parent == toRemove)
-            replacement->parent = current;
+        {
+            if (replacement != NULL)
+            {
+                replacement->parent = current;
+            }
+        }
         else
         {
             rb_tree_node_transplant(&tree->root, current, current->right);
             current->right = toRemove->right;
-            current->right->parent = current;
+            if (current->right != NULL)
+            {
+                current->right->parent = current;
+            }
         }
         rb_tree_node_transplant(&tree->root, toRemove, current);
         current->left = toRemove->left;
-        current->left->parent = current;
+        if (current->left != NULL)
+        {
+            current->left->parent = current;
+        }
         current->color = toRemove->color;
     }
 
