@@ -26,3 +26,16 @@ Set *set_union_destructive(Set *setA, Set *setB)
     set_free(setB);
     return unioned;
 }
+
+Set *set_copy(Set *set)
+{
+    Set *copied = set_new(NULL, set->compareData);
+    Iterator *copyIterator = set_begin(set);
+    while (iterator_valid(copyIterator))
+    {
+        set_insert(copied, iterator_get(copyIterator));
+        iterator_next(copyIterator);
+    }
+    iterator_free(copyIterator);
+    return copied;
+}

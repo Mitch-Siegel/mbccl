@@ -25,4 +25,6 @@ Set *set_union(Set *setA, Set *setB);
 
 Set *set_union_destructive(Set *setA, Set *setB);
 
+Set *set_copy(Set *set);
+
 #endif
