@@ -39,3 +39,11 @@ Set *set_copy(Set *set)
     iterator_free(copyIterator);
     return copied;
 }
+
+void set_clear(Set *set)
+{
+    while(set->size > 0)
+    {
+        set_remove(set, set->root->data);
+    }
+}

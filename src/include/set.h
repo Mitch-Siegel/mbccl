@@ -5,9 +5,9 @@
 
 typedef RBTree Set;
 
-#define set_new(freeData, compareData) rb_tree_new(freeData, compareData)
+#define set_new rb_tree_new
 
-#define set_free(set) rb_tree_free((set))
+#define set_free rb_tree_free
 
 #define set_insert(set, data)                \
     if (rb_tree_find((set), (data)) == NULL) \
@@ -15,16 +15,18 @@ typedef RBTree Set;
         rb_tree_insert((set), (data));       \
     }
 
-#define set_find(set, data) rb_tree_find((set), (data))
+#define set_find rb_tree_find
 
-#define set_remove(set, data) rb_tree_remove((set), (data))
+#define set_remove rb_tree_remove
 
-#define set_begin(set) rb_tree_begin((set))
+#define set_begin rb_tree_begin
 
 Set *set_union(Set *setA, Set *setB);
 
 Set *set_union_destructive(Set *setA, Set *setB);
 
 Set *set_copy(Set *set);
+
+void set_clear(Set *set);
 
 #endif
