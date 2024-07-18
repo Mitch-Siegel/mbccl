@@ -43,28 +43,20 @@ add_subdirectory(tests)
 install(TARGETS mbcl
     EXPORT mbclTargets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
 
 # Install headers
-install(DIRECTORY src/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mbcl)
-
-# Generate and install version file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/mbclConfigVersion.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY AnyNewerVersion
+install(DIRECTORY src/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mbcl
+    FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
+    DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
 
+# Install version file
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/mbclConfigVersion.cmake"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mbcl
-)
-
-# Export targets
-export(EXPORT mbclTargets
-    FILE "${CMAKE_CURRENT_BINARY_DIR}/mbclTargets.cmake"
-    NAMESPACE MBCL::
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
 
 # Install export file
@@ -72,4 +64,5 @@ install(EXPORT mbclTargets
     FILE mbclTargets.cmake
     NAMESPACE MBCL::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/mbcl
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ
 )
