@@ -293,6 +293,8 @@ void list_remove_node(List *list, ListNode *node)
         list->freeData(node->data);
     }
     free(node);
+
+    list->size--;
 }
 
 void list_remove(List *list, void *data)

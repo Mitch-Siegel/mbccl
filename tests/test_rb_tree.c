@@ -65,7 +65,7 @@ int tree_check_ordering(RBTree *tree)
     // Validation
     int last = -1;
     Iterator *treeIterator = rb_tree_begin(tree);
-    while (iterator_valid(treeIterator))
+    while (iterator_gettable(treeIterator))
     {
         int current = *(int *)iterator_get(treeIterator);
         if (current <= last)

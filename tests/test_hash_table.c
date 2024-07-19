@@ -73,7 +73,7 @@ int test_hash_table_iterator()
     Iterator *tableIterator = hash_table_begin(table);
     size_t nElements = 0;
     // int last = 0;
-    while (iterator_valid(tableIterator))
+    while (iterator_gettable(tableIterator))
     {
         HashTableEntry *gotten = iterator_get(tableIterator);
         printf("%d:%s\n", *(int *)gotten->key, (char *)gotten->value);

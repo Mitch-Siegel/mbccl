@@ -63,7 +63,7 @@ Set *set_union(Set *setA, Set *setB)
     Set *unioned = set_new(NULL, setA->compareData);
     Iterator *unionIterator = NULL;
 
-    for (unionIterator = set_begin(setA); iterator_valid(unionIterator); iterator_next(unionIterator))
+    for (unionIterator = set_begin(setA); iterator_gettable(unionIterator); iterator_next(unionIterator))
     {
         void *unionedData = iterator_get(unionIterator);
         if (!set_try_insert(unioned, unionedData) && (setA->freeData != NULL))
@@ -72,7 +72,7 @@ Set *set_union(Set *setA, Set *setB)
         }
     }
     iterator_free(unionIterator);
-    for (unionIterator = set_begin(setB); iterator_valid(unionIterator); iterator_next(unionIterator))
+    for (unionIterator = set_begin(setB); iterator_gettable(unionIterator); iterator_next(unionIterator))
     {
         void *unionedData = iterator_get(unionIterator);
         if (!set_try_insert(unioned, unionedData) && (setB->freeData != NULL))
@@ -99,7 +99,7 @@ Set *set_copy(Set *set)
 {
     Set *copied = set_new(NULL, set->compareData);
     Iterator *copyIterator = set_begin(set);
-    while (iterator_valid(copyIterator))
+    while (iterator_gettable(copyIterator))
     {
         set_insert(copied, iterator_get(copyIterator));
         iterator_next(copyIterator);

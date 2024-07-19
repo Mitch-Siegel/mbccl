@@ -15,7 +15,7 @@ ssize_t hash_table_entry_compare(void *dataA, void *dataB)
     {
         return entryA->compareKey(entryA->key, entryB->key);
     }
-    return 0;
+    return (ssize_t)entryA->hash - (ssize_t)entryB->hash;
 }
 
 HashTableEntry *hash_table_entry_new(void *key,
@@ -136,7 +136,7 @@ void *hash_table_find(HashTable *table, void *data)
 
     printf("there is a bucket for this data with size %zu\n", bucket->size);
     HashTableEntry *foundEntry = list_find(bucket, &dummyEntry);
-    if(foundEntry == NULL)
+    if (foundEntry == NULL)
     {
         return NULL;
     }
@@ -145,10 +145,15 @@ void *hash_table_find(HashTable *table, void *data)
 
 void hash_table_remove(HashTable *table, void *data)
 {
+    MBCL_ASSERT(hash_table_find(table, data) != NULL, "Remove data not in hash table");
     size_t hash = table->hashData(data);
     hash %= table->nBuckets;
-    MBCL_ASSERT(hash_table_find(table, data) != NULL, "Remove data not in hash table");
-    list_remove(array_at(&table->buckets, hash), data);
+    List *bucket = array_at(&table->buckets, hash);
+    HashTableEntry dummyEntry = {0};
+    dummyEntry.key = data;
+    dummyEntry.hash = hash;
+    dummyEntry.compareKey = table->compareData;
+    list_remove(bucket, &dummyEntry);
     table->size--;
 }
 
@@ -162,10 +167,15 @@ Iterator *hash_table_begin(HashTable *table)
     Iterator *tableIterator = iterator_new(table->size);
 
     Iterator **bucketIterators = malloc(table->nBuckets * sizeof(Iterator *));
+    memset(bucketIterators, 0, table->nBuckets * sizeof(Iterator *));
 
     for (size_t bucketIdx = 0; bucketIdx < table->nBuckets; bucketIdx++)
     {
-        bucketIterators[bucketIdx] = list_begin(array_at(&table->buckets, bucketIdx));
+        List *bucket = array_at(&table->buckets, bucketIdx);
+        if (bucket != NULL)
+        {
+            bucketIterators[bucketIdx] = list_begin(bucket);
+        }
     }
 
     size_t placedIdx = 0;
@@ -174,10 +184,10 @@ Iterator *hash_table_begin(HashTable *table)
         Iterator *smallest = NULL;
         for (size_t bucketIdx = 0; bucketIdx < table->nBuckets; bucketIdx++)
         {
-            if (iterator_valid(bucketIterators[bucketIdx]))
+            if ((bucketIterators[bucketIdx] != NULL) && iterator_gettable(bucketIterators[bucketIdx]))
             {
-                void *compared = iterator_get(bucketIterators[bucketIdx]);
-                if ((smallest == NULL) || (table->compareData(compared, iterator_get(smallest)) < 0))
+                struct HashTableEntry *compared = iterator_get(bucketIterators[bucketIdx]);
+                if ((smallest == NULL) || (hash_table_entry_compare(compared, iterator_get(smallest)) < 0))
                 {
                     smallest = bucketIterators[bucketIdx];
                 }
@@ -185,12 +195,16 @@ Iterator *hash_table_begin(HashTable *table)
         }
         tableIterator->data[placedIdx] = iterator_get(smallest);
         iterator_next(smallest);
+
         placedIdx++;
     }
 
     for (size_t bucketIdx = 0; bucketIdx < table->nBuckets; bucketIdx++)
     {
-        iterator_free(bucketIterators[bucketIdx]);
+        if (bucketIterators[bucketIdx] != NULL)
+        {
+            iterator_free(bucketIterators[bucketIdx]);
+        }
     }
     free(bucketIterators);
 

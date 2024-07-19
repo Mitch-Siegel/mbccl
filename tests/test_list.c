@@ -30,7 +30,7 @@ int test_list_sort()
 
     Iterator *listIterator = list_begin(testList);
     int last = -1;
-    while (iterator_valid(listIterator))
+    while (iterator_gettable(listIterator))
     {
         int *gotten = iterator_get(listIterator);
         printf("%d\n", *gotten);
