@@ -7,6 +7,7 @@ void array_init(Array *array, MBCL_DATA_FREE_FUNCTION freeData, size_t size)
 {
     memset(array, 0, sizeof(Array));
     array->data = malloc(size * sizeof(void *));
+    memset(array->data, 0, size * sizeof(void *));
     array->size = size;
     array->freeData = freeData;
 }

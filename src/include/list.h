@@ -39,7 +39,9 @@ void *list_pop_back(List *list);
 
 void list_sort(List *list);
 
-void *list_find(List *list, void *element);
+void *list_find(List *list, void *data);
+
+void list_remove(List *list, void *data);
 
 Iterator *list_begin(List *list);
 

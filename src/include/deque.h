@@ -25,6 +25,8 @@ void deque_push_back(Deque *deque, void *data);
 
 void *deque_pop_back(Deque *deque);
 
+void *deque_at(Deque *deque, size_t index);
+
 Iterator *deque_front(Deque *deque);
 
 #endif

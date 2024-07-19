@@ -293,6 +293,52 @@ int test_tree_remove_million()
     return 0;
 }
 
+int test_tree_remove_random()
+{
+    RBTree *testTree = create_int_tree();
+    // srand(1); // causes pivot issues
+    size_t now = (size_t)time(0);
+    printf("seed: %zu\n", now);
+    srand(now); // causes pivot issues
+    for (int i = 0; i < 60000; i++)
+    {
+        if (((rand() % 3) == 0) && (testTree->size > 0))
+        {
+            Iterator *toRemove = rb_tree_begin(testTree);
+            for (size_t removeSkip = 0; removeSkip < (size_t)rand() % testTree->size; removeSkip++)
+            {
+                iterator_next(toRemove);
+            }
+            int *removed = iterator_get(toRemove);
+            // int removedVal = *removed;
+            rb_tree_remove(testTree, removed);
+            // printf("remove %d - new size %zu\n", removedVal, testTree->size);
+
+            iterator_free(toRemove);
+        }
+        else
+        {
+            int toAdd = rand() % 100000;
+            if (rb_tree_find(testTree, &toAdd) == NULL)
+            {
+                insert_int(testTree, toAdd);
+                // printf("add %d - new size %zu\n", toAdd, testTree->size);
+            }
+        }
+    }
+
+
+    while (testTree->size > 0)
+    {
+        Iterator *toRemove = rb_tree_begin(testTree);
+        rb_tree_remove(testTree, iterator_get(toRemove));
+        iterator_free(toRemove);
+    }
+
+    rb_tree_free(testTree);
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     MBCL_ASSERT(argc == 2, "Provide number of rb tree test to run");
@@ -341,6 +387,10 @@ int main(int argc, char *argv[])
 
     case 10:
         test_tree_remove_million();
+        break;
+
+    case 11:
+        test_tree_remove_random();
         break;
 
     default:

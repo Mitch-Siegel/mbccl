@@ -231,20 +231,74 @@ void list_sort(List *list)
     list_merge_sort(list);
 }
 
-void *list_find(List *list, void *element)
+ListNode *list_find_node(List *list, void *data)
 {
-    MBCL_ASSERT(list->compareData != NULL, "list_find with no comparedata function set");
-
     for (ListNode *listRunner = list->head; listRunner != NULL; listRunner = listRunner->next)
     {
         void *runnerData = listRunner->data;
-        if (list->compareData(runnerData, element) == 0)
+        if (list->compareData(runnerData, data) == 0)
         {
-            return runnerData;
+            return listRunner;
         }
     }
 
     return NULL;
+}
+void *list_find(List *list, void *data)
+{
+    MBCL_ASSERT(list->compareData != NULL, "list_find with no comparedata function set");
+
+    ListNode *foundNode = list_find_node(list, data);
+    if (foundNode != NULL)
+    {
+        return foundNode->data;
+    }
+
+    return NULL;
+}
+
+void list_remove_node(List *list, ListNode *node)
+{
+    ListNode *prev = node->prev;
+    ListNode *next = node->next;
+
+    if (prev != NULL)
+    {
+        prev->next = next;
+        if (next != NULL)
+        {
+            next->prev = prev;
+        }
+    }
+    else
+    {
+        list->head = next;
+    }
+
+    if (next != NULL)
+    {
+        next->prev = prev;
+        if (prev != NULL)
+        {
+            prev->next = next;
+        }
+    }
+    else
+    {
+        list->tail = prev;
+    }
+
+    if (list->freeData)
+    {
+        list->freeData(node->data);
+    }
+    free(node);
+}
+
+void list_remove(List *list, void *data)
+{
+    MBCL_ASSERT(list->compareData != NULL, "list_remove with no comparedata function set");
+    list_remove_node(list, list_find_node(list, data));
 }
 
 Iterator *list_begin(List *list)

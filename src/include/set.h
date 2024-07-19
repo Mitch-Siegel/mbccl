@@ -5,21 +5,21 @@
 
 typedef RBTree Set;
 
-#define set_new rb_tree_new
+void set_verify(Set *set);
 
-#define set_free rb_tree_free
+Set *set_new(MBCL_DATA_FREE_FUNCTION freeData, MBCL_DATA_COMPARE_FUNCTION compareData);
 
-#define set_insert(set, data)                \
-    if (rb_tree_find((set), (data)) == NULL) \
-    {                                        \
-        rb_tree_insert((set), (data));       \
-    }
+void set_free(Set *set);
 
-#define set_find rb_tree_find
+void set_insert(Set *set, void *data);
 
-#define set_remove rb_tree_remove
+bool set_try_insert(Set *set, void *data);
 
-#define set_begin rb_tree_begin
+void *set_find(Set *set, void *data);
+
+void set_remove(Set *set, void *data);
+
+Iterator *set_begin(Set *set);
 
 Set *set_union(Set *setA, Set *setB);
 

@@ -66,6 +66,12 @@ void *deque_pop_back(Deque *deque)
     return poppedData;
 }
 
+void *deque_at(Deque *deque, size_t index)
+{
+    MBCL_ASSERT(index < deque->size, "Deque access out of bounds");
+    return deque->data[deque->startIdx + index];
+}
+
 Iterator *deque_front(Deque *deque)
 {
     Iterator *wipIterator = iterator_new(deque->size);

@@ -9,6 +9,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_compile_options(-Werror -Wall -Wpedantic -Wextra)
 add_compile_options(-g)
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
 
 # Include directories
 include_directories(src/include)

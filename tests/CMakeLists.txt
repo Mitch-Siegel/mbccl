@@ -38,3 +38,7 @@ target_link_libraries(test-hash-table mbcl)
 add_test(NAME test_hash_table_insert_find COMMAND test-hash-table 0)
 add_test(NAME test_hash_table_remove COMMAND test-hash-table 1)
 add_test(NAME test_hash_table_iterator COMMAND test-hash-table 2)
+
+# set tests
+add_executable(test-set test_set.c)
+target_link_libraries(test-set mbcl)
