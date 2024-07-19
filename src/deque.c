@@ -78,3 +78,11 @@ Iterator *deque_front(Deque *deque)
     memcpy(wipIterator->data, deque->data + deque->startIdx, deque->size * sizeof(void *));
     return wipIterator;
 }
+
+Iterator *deque_rear(Deque *deque)
+{
+    Iterator *wipIterator = iterator_new(deque->size);
+    memcpy(wipIterator->data, deque->data + deque->startIdx, deque->size * sizeof(void *));
+    wipIterator->pos = deque->size - 1;
+    return wipIterator;
+}

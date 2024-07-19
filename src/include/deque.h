@@ -29,4 +29,6 @@ void *deque_at(Deque *deque, size_t index);
 
 Iterator *deque_front(Deque *deque);
 
+Iterator *deque_rear(Deque *deque);
+
 #endif

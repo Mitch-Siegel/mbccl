@@ -26,7 +26,7 @@ void iterator_free(Iterator *iterator)
 
 void *iterator_get(Iterator *iterator)
 {
-    MBCL_ASSERT(iterator_gettable(iterator), "Iterator invalid in iterator_get");
+    MBCL_ASSERT(iterator_gettable(iterator), "Iterator not gettable in iterator_get");
     return iterator->data[iterator->pos];
 }
 
@@ -37,12 +37,12 @@ bool iterator_gettable(Iterator *iterator)
 
 void iterator_next(Iterator *iterator)
 {
-    MBCL_ASSERT(iterator_gettable(iterator), "Iterator invalid in iterator_next");
+    MBCL_ASSERT(iterator_gettable(iterator), "Iterator not gettable in iterator_next");
     iterator->pos++;
 }
 
 void iterator_prev(Iterator *iterator)
 {
-    MBCL_ASSERT(iterator->pos > 0, "Iterator pos at start in iterator_prev");
+    MBCL_ASSERT(iterator_gettable(iterator), "Iterator gettable in iterator_next");
     iterator->pos--;
 }
