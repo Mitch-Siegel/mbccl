@@ -23,4 +23,8 @@ void array_emplace(Array *array, size_t index, void *data);
 
 void array_resize(Array *array, size_t newSize);
 
+Iterator *array_begin(Array *array);
+
+Iterator *array_end(Array *array);
+
 #endif

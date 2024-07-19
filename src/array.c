@@ -61,3 +61,19 @@ void array_resize(Array *array, size_t newSize)
     array->size = newSize;
     MBCL_ASSERT(array->data != NULL, "realloc failed in array_resize");
 }
+
+Iterator *array_begin(Array *array)
+{
+    Iterator *wipIterator = iterator_new(array->size);
+    memcpy(wipIterator->data, array->data, array->size * sizeof(void *));
+    return wipIterator;
+}
+
+Iterator *array_end(Array *array)
+{
+    Iterator *wipIterator = iterator_new(array->size);
+    memcpy(wipIterator->data, array->data, array->size * sizeof(void *));
+    wipIterator->pos = array->size - 1;
+
+    return wipIterator;
+}

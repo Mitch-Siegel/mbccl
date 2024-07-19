@@ -10,7 +10,6 @@ ssize_t hash_table_entry_compare(void *dataA, void *dataB)
 {
     HashTableEntry *entryA = dataA;
     HashTableEntry *entryB = dataB;
-    printf("hash_table_entry_compare: hashes %lx %lx\n", entryA->hash, entryB->hash);
     if (entryA->hash == entryB->hash)
     {
         return entryA->compareKey(entryA->key, entryB->key);
@@ -85,7 +84,6 @@ void hash_table_deinit(HashTable *table)
         {
             while (bucket->size > 0)
             {
-                printf("free from list with %zu elems\n", bucket->size);
                 hash_table_entry_free(list_pop_back(bucket), table->freeData, table->freeValue);
             }
             list_free(bucket);
@@ -102,27 +100,19 @@ void hash_table_free(HashTable *table)
 
 void hash_table_insert(HashTable *table, void *key, void *value)
 {
-    printf("insert\n");
     size_t hash = table->hashData(key);
     List *bucket = array_at(&table->buckets, hash % table->nBuckets);
     if (bucket == NULL)
     {
-        printf("create new bucket\n");
         bucket = list_new(NULL, hash_table_entry_compare);
         array_emplace(&table->buckets, hash % table->nBuckets, bucket);
     }
-    else
-    {
-        printf("bucket exists already\n");
-    }
     list_append(bucket, hash_table_entry_new(key, value, hash, table->compareData));
     table->size++;
-    printf("inserted\n");
 }
 
 void *hash_table_find(HashTable *table, void *data)
 {
-    printf("find\n");
     size_t hash = table->hashData(data);
     List *bucket = array_at(&table->buckets, hash % table->nBuckets);
     if (bucket == NULL)
@@ -134,7 +124,6 @@ void *hash_table_find(HashTable *table, void *data)
     dummyEntry.hash = hash;
     dummyEntry.compareKey = table->compareData;
 
-    printf("there is a bucket for this data with size %zu\n", bucket->size);
     HashTableEntry *foundEntry = list_find(bucket, &dummyEntry);
     if (foundEntry == NULL)
     {

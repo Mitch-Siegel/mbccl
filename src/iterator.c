@@ -44,5 +44,5 @@ void iterator_next(Iterator *iterator)
 void iterator_prev(Iterator *iterator)
 {
     MBCL_ASSERT(iterator->pos > 0, "Iterator pos at start in iterator_prev");
-    iterator->pos++;
+    iterator->pos--;
 }
