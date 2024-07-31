@@ -8,8 +8,9 @@
 
 typedef struct
 {
-    Array container;
-    size_t size;
+    MBCL_CONTAINER_BASE;
+    void **data;
+    size_t capacity;
 } Stack;
 
 #define MBCL_STACK_DEFAULT_ALLOCATION 10
