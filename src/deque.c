@@ -29,10 +29,8 @@ void deque_push_front(Deque *deque, void *data)
         deque->cap += DEQUE_SHIFT_AMOUNT;
         memmove(&deque->data[DEQUE_SHIFT_AMOUNT], &deque->data[deque->startIdx], deque->size * sizeof(void *));
         deque->startIdx = DEQUE_SHIFT_AMOUNT;
-        printf("shift from %zu to %zu\n", 0UL, deque->startIdx);
     }
     deque->startIdx--;
-    printf("put at %zu\n", deque->startIdx);
     deque->data[deque->startIdx] = data;
     deque->size++;
 }
@@ -60,7 +58,6 @@ void deque_push_back(Deque *deque, void *data)
 void *deque_pop_back(Deque *deque)
 {
     MBCL_ASSERT(deque->size > 0, "pop_rear from empty deque");
-    printf("pop from %zu\n", (deque->startIdx + deque->size) - 1);
     deque->size--;
     void *poppedData = deque->data[deque->startIdx + deque->size];
     return poppedData;
